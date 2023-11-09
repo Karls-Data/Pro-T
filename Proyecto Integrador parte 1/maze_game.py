@@ -1,124 +1,125 @@
-
-
-"""Este módulo contiene el juego de laberinto con teclado."""
+# Importa el módulo keyboard, asegúrate de instalarlo con "pip install keyboard"
 
 import keyboard
 
-# Resto del código
-
-
-def imprimir_laberinto(lab):
-    """
-    Imprime el laberinto en la consola.
-
-    Args:
-        lab (list): El laberinto representado como una lista de cadenas.
-    """
-    for fila in lab:
-        print(fila)
-
-
-def encontrar_posicion_inicial(lab):
-    """
-    Encuentra la posición inicial del jugador en el laberinto.
-
-    Args:
-        lab (list): El laberinto representado como una lista de cadenas.
-
-    Returns:
-        tuple or None: Una tupla con la posición inicial (fila, columna) del jugador o None si no se encuentra.
-    """
-
-    for fila in range(len(lab)):
-        for col in range(len(lab[fila])):
-            if lab[fila][col] == "P":
-                return fila, col
-    return None
-
-
-def mover_jugador(lab, fila, col, dir):
-    """
-    Mueve al jugador en el laberinto según la dirección elegida.
-
-    Args:
-        lab (list): El laberinto representado como una lista de cadenas.
-        fila (int): La fila actual del jugador.
-        col (int): La columna actual del jugador.
-        dir (str): La dirección de movimiento ("arriba", "abajo", "izquierda" o "derecha").
-
-    Returns:
-        tuple: Una tupla con la nueva posición (fila, columna) del jugador.
-    """
-    nueva_fila, nueva_col = fila, col
-
-    if dir == "arriba":
-        nueva_fila -= 1
-    elif dir == "abajo":
-        nueva_fila += 1
-    elif dir == "izquierda":
-        nueva_col -= 1
-    elif dir == "derecha":
-        nueva_col += 1
-
-    if 0 <= nueva_fila < len(lab) and 0 <= nueva_col < len(lab[0]) and lab[nueva_fila][nueva_col] != "#":
-        lab[fila] = lab[fila][:col] + "." + lab[fila][col + 1:]
-        lab[nueva_fila] = lab[nueva_fila][:nueva_col] + \
-            "P" + lab[nueva_fila][nueva_col + 1:]
-        return nueva_fila, nueva_col
-    else:
-        return fila, col
-
-
-print("Bienvenido al juego de aventura")
-
-nombre_jugador = input("Ingresa tu nombre: ")
-print(f"¡Bienvenido, disfruta de esta gran aventura, {nombre_jugador}!")
-
-ready = input("¿Estás listo para empezar? (Si / No): ").lower()
-
-if ready == "si":
-    print("¡Comencemos!")
-elif ready == "no":
-    print("¡Entendido! Puedes comenzar cuando estés listo.")
-else:
-    print("Respuesta no válida. Por favor, responde 'Si' o 'No'.")
-
-laberinto = [
-    "##########",
-    "#....P...#",
-    "#........#",
+LABERINTO = [
+    "#############################",
+    "#....................########",
+    "#.##..P..#######..####...####",
+    "#.#......####.....##########",
+    "#.##..###........############",
+    "#.....######.......#.########",
+    "#..#####......###############",
+    "#.....#..####################",
     "##########"
 ]
 
-fila_jugador, col_jugador = encontrar_posicion_inicial(laberinto)
+MENSAJE_BIENVENIDA = "Bienvenido al juego de aventura"
+MENSAJE_INGRESO_NOMBRE = "Ingresa tu nombre: "
+MENSAJE_COMIENZO = "¡Comencemos!"
+MENSAJE_ESPERA = "¡Entendido! Puedes comenzar cuando estés listo."
+MENSAJE_NO_VALIDO = "Respuesta no válida. Por favor, responde 'Si' o 'No'."
+MENSAJE_FIN_JUEGO = "¡Buen juego, perdedor!"
 
-while True:
-    imprimir_laberinto(laberinto)
-    direccion = None
 
-    # Usar keyboard para obtener la dirección
-    while direccion not in ["arriba", "abajo", "izquierda", "derecha", "esc"]:
-        event = keyboard.read_event(suppress=True)
+def imprimir_laberinto(lab):
+    for fila in lab:
+        print(" ".join(fila))
+    print()
 
-        if event.event_type == keyboard.KEY_DOWN:
-            if event.name == "up":
+
+def encontrar_posicion_inicial(lab):
+    for i, fila in enumerate(lab):
+        for j, celda in enumerate(fila):
+            if celda == "P":
+                return i, j
+    return None
+
+
+def mover_jugador(lab, fila, col, direccion):
+    nueva_fila, nueva_col = fila, col
+
+    if direccion == "arriba":
+        nueva_fila -= 1
+    elif direccion == "abajo":
+        nueva_fila += 1
+    elif direccion == "izquierda":
+        nueva_col -= 1
+    elif direccion == "derecha":
+        nueva_col += 1
+
+    if 0 <= nueva_fila < len(lab) and 0 <= nueva_col < len(lab[0]) and lab[nueva_fila][nueva_col] != "#":
+        nuevo_laberinto = [list(fila) for fila in lab]
+        nuevo_laberinto[fila][col] = "."
+        nuevo_laberinto[nueva_fila][nueva_col] = "P"
+        return ["".join(fila) for fila in nuevo_laberinto], nueva_fila, nueva_col
+    else:
+        return lab, fila, col
+
+
+def main():
+    global LABERINTO
+    print(MENSAJE_BIENVENIDA)
+    nombre_jugador = input(MENSAJE_INGRESO_NOMBRE)
+    LABERINTO = [
+        "#############################",
+        "#...P................########",
+        "#.##....#######..####...####",
+        "#.#......####.....##########",
+        "#.##..###........############",
+        "#.....######.......#.########",
+        "#..#####......###############",
+        "#.....#..####################",
+        "##########"
+    ]
+
+    print(f"¡Bienvenido, disfruta de esta gran aventura, {nombre_jugador}!")
+
+    ready = input("¿Estás listo para empezar? (Si / No): ").lower()
+
+    posicion_jugador = encontrar_posicion_inicial(LABERINTO)
+
+    if posicion_jugador is None:
+        print("No se pudo encontrar la posición inicial del jugador.")
+        exit()
+
+    if ready == "si":
+        print(MENSAJE_COMIENZO)
+    elif ready == "no":
+        print(MENSAJE_ESPERA)
+    else:
+        print(MENSAJE_NO_VALIDO)
+        exit()
+
+    fila_jugador, col_jugador = posicion_jugador
+
+    imprimir_laberinto(LABERINTO)
+
+    while True:
+        direction_event = keyboard.read_event(suppress=True)
+        if direction_event.event_type == keyboard.KEY_DOWN:
+            direccion = None
+
+            if direction_event.name == "up":
                 direccion = "arriba"
-            elif event.name == "down":
+            elif direction_event.name == "down":
                 direccion = "abajo"
-            elif event.name == "left":
+            elif direction_event.name == "left":
                 direccion = "izquierda"
-            elif event.name == "right":
+            elif direction_event.name == "right":
                 direccion = "derecha"
-            elif event.name == "esc":
-                print("¡Buen juego, perdedor!")
+            elif direction_event.name == "esc":
+                print(MENSAJE_FIN_JUEGO)
                 exit()
 
-    fila_jugador, col_jugador = mover_jugador(
-        laberinto, fila_jugador, col_jugador, direccion)
+            if direccion:
+                nuevo_laberinto, nueva_fila, nueva_col = mover_jugador(
+                    LABERINTO, fila_jugador, col_jugador, direccion)
+                if nuevo_laberinto:
+                    LABERINTO = nuevo_laberinto
+                    fila_jugador, col_jugador = nueva_fila, nueva_col
+                    imprimir_laberinto(LABERINTO)
 
-    if laberinto[fila_jugador][col_jugador] == ".":
-        print("¡Lo siento, perdiste!")
-        break
-    elif laberinto[fila_jugador][col_jugador] == "#":
-        print("¡Felicitaciones, ganaste!")
-        break
+
+if __name__ == "__main__":
+    main()
