@@ -1,9 +1,8 @@
 
 
-import keyboard
-
-
 """Este módulo contiene el juego de laberinto con teclado."""
+
+import keyboard
 
 # Resto del código
 
